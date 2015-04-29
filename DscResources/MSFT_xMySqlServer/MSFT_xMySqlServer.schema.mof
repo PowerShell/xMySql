@@ -14,6 +14,11 @@ class MSFT_xMySqlServer : OMI_BaseResource
   EmbeddedInstance("MSFT_Credential"),
   Description("The root credential that is used to install mySql server.")]
   String RootPassword;
+  
+  [required,
+  write,
+  Description("MYSql Version Number")]
+  String MySQLVersion;
 };
 
 
