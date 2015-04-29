@@ -6,7 +6,6 @@
 
 # NOTE: LocalizedData isn't used in this resource as there are no interactive/user visible strings
 
-$mySqlVersion = "5.6"
 $Debug = $true
 
 ################################################################################################################################
@@ -99,6 +98,11 @@ function Get-MySqlArchitectureName
 
 function Get-MySqlProductName
 {
+    param
+    (
+        [parameter(Mandatory = $true)]
+        $MySQLVersion
+    )
     return "mysql-server-$mySqlVersion-$(Get-MySqlArchitectureName)"
 }
 
@@ -108,6 +112,11 @@ function Get-MySqlProductName
 
 function Get-MySqlCatalogName
 {
+    param
+    (
+        [parameter(Mandatory = $true)]
+        $MySQLVersion
+    )
     return "mysql-$mySqlVersion-$(Get-MySqlArchitectureName)"
 }
 
@@ -131,7 +140,10 @@ function Get-TargetResource
         [string] $Ensure = "Present",
 
         [parameter(Mandatory = $true)]
-        [pscredential] $RootPassword
+        [pscredential] $RootPassword,
+
+        [parameter(Mandatory = $true)]
+        $MySQLVersion
     )
     
     $Ensure = "Absent"
@@ -184,7 +196,11 @@ function Test-TargetResource
         [string] $Ensure = "Present",
         
         [parameter(Mandatory = $true)]
-        [pscredential] $RootPassword
+        [pscredential] $RootPassword,
+
+        [parameter(Mandatory = $true)]
+        $MySQLVersion
+
     )
     
     Trace-Message "Ensure is $Ensure"
@@ -217,7 +233,10 @@ function Set-TargetResource
         [string] $Ensure = "Present",
 
         [parameter(Mandatory = $true)]
-        [pscredential] $RootPassword
+        [pscredential] $RootPassword,
+
+        [parameter(Mandatory = $true)]
+        $MySQLVersion
         
     )
     
@@ -282,7 +301,7 @@ function Set-TargetResource
         if(-not $status.MySqlInstalled)
         {
             Trace-Message "Installing MySQL"
-            &$mySqlInstallerConsole --nowait --action=Install "--catalog=$(Get-MySqlCatalogName)" "--product=$(Get-MySqlProductName)" $config
+            &$mySqlInstallerConsole --nowait --action=Install "--catalog=$(Get-MySqlCatalogName -MySQLVersion $MySQLVersion)" "--product=$(Get-MySqlProductName -MySQLVersion $MySQLVersion)" $config
 
             # don't stamp the machine until after the installation has completed, successfully!
             Trace-Message "Creating instance flag"
@@ -298,6 +317,7 @@ function Set-TargetResource
 
 }
 #endregion
+
 
 Export-ModuleMember -function Get-TargetResource, Set-TargetResource, Test-TargetResource
 
