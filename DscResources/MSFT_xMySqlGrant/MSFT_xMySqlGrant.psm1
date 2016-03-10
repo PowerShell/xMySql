@@ -117,7 +117,7 @@ function Set-TargetResource
             "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
         $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
                    
-        $msg = "$($LocalizedData.GrantCreated) -f $UserName"
+        $msg = $($LocalizedData.GrantCreated) -f $PermissionType, $UserName
     }
     else
     {        
@@ -127,7 +127,7 @@ function Set-TargetResource
             "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
         $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
 
-        $msg = "$($LocalizedData.GrantRemoved) -f $UserName"
+        $msg = $($LocalizedData.GrantRemoved) -f $PermissionType, $UserName
     }
 
     Read-ErrorFile -ErrorFilePath $ErrorPath

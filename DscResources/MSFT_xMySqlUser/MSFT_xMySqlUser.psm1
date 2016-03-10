@@ -47,13 +47,13 @@ function Get-TargetResource
 
     if($result -ieq  "Yes")
     {
-        $msg = "$($LocalizedData.UserExists) -f $UserName"
+        $msg = $($LocalizedData.UserExists) -f "$UserName"
         Write-Verbose -Message $msg          
         $ensureResult = "Present"
     }
     else
     {
-        $msg = "$($LocalizedData.UserDoesNotExist) -f $UserName"
+        $msg = $($LocalizedData.UserDoesNotExist) -f "$UserName"
         Write-Verbose -Message $msg          
         $ensureResult = "Absent"
     }
@@ -97,7 +97,7 @@ function Set-TargetResource
         $arguments = "--execute=CREATE USER '$UserName'@'localhost' IDENTIFIED BY '$($UserCredential.GetNetworkCredential().Password)'", "--user=root", `
             "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
         $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
-        $msg = "$($LocalizedData.UserCreated) -f $UserName"
+        $msg = $($LocalizedData.UserCreated) -f "$UserName"
         Write-Verbose -Message $msg       
     }
     else
@@ -106,7 +106,7 @@ function Set-TargetResource
         $arguments = "--execute=DROP USER '$UserName'@'localhost'", "--user=root", "--password=$($RootCredential.GetNetworkCredential().Password)", `
             "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
         $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
-        $msg = "$($LocalizedData.UserRemoved) -f $UserName"
+        $msg = $($LocalizedData.UserRemoved) -f "$UserName"
         Write-Verbose -Message $msg  
     }
 

@@ -29,6 +29,12 @@ if (Get-Module xMySql)
     Remove-Module xMySql
 }
 
+if (Get-Module MSFT_xMySqlUtilities)
+{
+    Remove-Module MSFT_xMySqlUtilities
+}
+
+Import-Module (Join-Path $here -ChildPath "..\MSFT_xMySqlUtilities.psm1")
 Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xMySqlDatabase\MSFT_xMySqlDatabase.psm1")
 Import-Module (Join-Path $here -ChildPath "..\xMySql.psd1")
 
