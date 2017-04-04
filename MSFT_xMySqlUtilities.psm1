@@ -279,11 +279,11 @@ function Get-MySqlPort
         Throw 'The my.ini file does not exist in the standard location'
     }
 
-    ForEach ($line in (Get-Content $myIniLocation))
+    ForEach ($line in (Get-Content $MySqlIniPath))
     {
-        if ($line -match "^port=")
+        if ($line -match "^port\s*=")
         {
-            $mySqlPort = ($line -split '=')[1]
+            $mySqlPort = ($line -split '=')[1].Trim()
         }
     }
     return $mySqlPort
