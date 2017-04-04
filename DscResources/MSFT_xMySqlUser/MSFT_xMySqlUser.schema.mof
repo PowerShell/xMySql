@@ -7,6 +7,7 @@ class MSFT_xMySqlUser : OMI_BaseResource
     [Required, Description("MySQL root credential used to create a user."), EmbeddedInstance("MSFT_Credential")] String RootCredential;
     [Write, Description("Ensure MySQL user is present or absent."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
     [Required, Description("MySQL Version Number")] String MySqlVersion;
+    [Write, Description("MySql ini Path")] String MySqlIniPath;
 };
 
 

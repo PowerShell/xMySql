@@ -31,7 +31,9 @@ function Get-TargetResource
 
         [parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] $MySqlVersion    
+        [string] $MySqlVersion,
+
+        [string] $MySqlIniPath = $null
     )
     
     if (Test-Path $ErrorPath)
@@ -40,7 +42,7 @@ function Get-TargetResource
     }
 
     $arguments = "--execute=SELECT IF(EXISTS (SELECT USER FROM MYSQL.USER WHERE USER = '$UserName' AND HOST = 'localhost'), 'Yes','No')", "--user=root", `
-        "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
+        "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)", "--silent"
     $result = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
 
     Read-ErrorFile -ErrorFilePath $ErrorPath
@@ -83,7 +85,9 @@ function Set-TargetResource
 
         [parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] $MySqlVersion
+        [string] $MySqlVersion,
+
+        [string] $MySqlIniPath = $null
     )
     
     if (Test-Path $ErrorPath)
@@ -95,7 +99,7 @@ function Set-TargetResource
     {        
         Write-Verbose -Message "Adding user $UserName..."           
         $arguments = "--execute=CREATE USER '$UserName'@'localhost' IDENTIFIED BY '$($UserCredential.GetNetworkCredential().Password)'", "--user=root", `
-            "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
+            "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)", "--silent"
         $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
         $msg = $($LocalizedData.UserCreated) -f "$UserName"
         Write-Verbose -Message $msg       
@@ -133,12 +137,14 @@ function Test-TargetResource
 
         [parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] $MySqlVersion
+        [string] $MySqlVersion,
+
+        [string] $MySqlIniPath = $null
     )
     
     Write-Verbose "Ensure is $Ensure"
 
-    $status = Get-TargetResource -UserName $UserName -UserCredential $UserCredential -RootCredential $RootCredential -MySqlVersion $MySqlVersion
+    $status = Get-TargetResource -UserName $UserName -UserCredential $UserCredential -RootCredential $RootCredential -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath
     
     if($status.Ensure -eq $Ensure)
     {

@@ -40,7 +40,9 @@ function Get-TargetResource
 
         [parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] $MySqlVersion
+        [string] $MySqlVersion,
+
+        [string] $MySqlIniPath = $null
     )
     
     if (Test-Path $ErrorPath)
@@ -49,7 +51,7 @@ function Get-TargetResource
     }
   
     $arguments = "--execute=SHOW GRANTS FOR '$UserName'@localhost", "--user=root", "--password=$($RootCredential.GetNetworkCredential().Password)", `
-        "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
+        "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)", "--silent"
     $results = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
     
     Read-ErrorFile -ErrorFilePath $ErrorPath
@@ -101,7 +103,9 @@ function Set-TargetResource
 
         [parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] $MySqlVersion
+        [string] $MySqlVersion,
+
+        [string] $MySqlIniPath = $null
     )
     
     if (Test-Path $ErrorPath)
@@ -114,7 +118,7 @@ function Set-TargetResource
         Write-Verbose "Granting $PermissionType on $DatabaseName to $UserName..."
 
         $arguments = "--execute=GRANT $PermissionType ON $DatabaseName.* TO '$UserName'@localhost", "--user=root", `
-            "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
+            "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion, $MySqlIniPath)", "--silent"
         $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
                    
         $msg = $($LocalizedData.GrantCreated) -f $PermissionType, $UserName
@@ -124,7 +128,7 @@ function Set-TargetResource
         Write-Verbose "Revoking $PermissionType on $DatabaseName to $UserName..."
 
         $arguments = "--execute=REVOKE $PermissionType ON $DatabaseName.* FROM '$UserName'@localhost", "--user=root", `
-            "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
+            "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion, $MySqlIniPath)", "--silent"
         $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
 
         $msg = $($LocalizedData.GrantRemoved) -f $PermissionType, $UserName
@@ -161,12 +165,14 @@ function Test-TargetResource
 
         [parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] $MySqlVersion
+        [string] $MySqlVersion,
+
+        [string] $MySqlIniPath = $null
     )
     
     Write-Verbose "Ensure is $Ensure"
 
-    $status = Get-TargetResource -UserName $UserName -DatabaseName $DatabaseName -RootCredential $RootCredential -PermissionType $PermissionType -MySqlVersion $MySqlVersion
+    $status = Get-TargetResource -UserName $UserName -DatabaseName $DatabaseName -RootCredential $RootCredential -PermissionType $PermissionType -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath
     
     if($status['Ensure'] -eq $Ensure)
     {

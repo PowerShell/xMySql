@@ -10,7 +10,9 @@ function Get-TargetResource
         [string] $MySqlVersion,
         
         [parameter(Mandatory = $true)]
-        [pscredential] $RootPassword
+        [pscredential] $RootPassword,
+
+        [string] $MySqlIniPath = $null
     )
     
     $MySqlInstalled = (Get-MySqlVersionInstalled -MySqlVersion $MySqlVersion)
@@ -18,7 +20,7 @@ function Get-TargetResource
     if ($MySqlInstalled)
     {
         $ensureResult = "Present"
-        $portResult = (Get-MySqlPort -MySqlVersion $MySqlVersion)
+        $portResult = (Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)
     }
     else
     {
@@ -47,7 +49,9 @@ function Set-TargetResource
         [parameter(Mandatory = $true)]
         [pscredential] $RootPassword,
 
-        [string] $Port = "3306"
+        [string] $Port = "3306",        
+
+        [string] $MySqlIniPath = $null
         
     )
     
@@ -89,13 +93,15 @@ function Test-TargetResource
         [parameter(Mandatory = $true)]
         [pscredential] $RootPassword,
 
-        [string] $Port = "3306"
+        [string] $Port = "3306",
+
+        [string] $MySqlIniPath = $null
 
     )
     
     Write-Verbose "Ensure is $Ensure"
 
-    $status = Get-TargetResource -MySqlVersion $MySqlVersion -RootPassword $RootPassword
+    $status = Get-TargetResource -MySqlVersion $MySqlVersion -RootPassword $RootPassword -MySqlIniPath $MySqlIniPath
 
     # don't yet check if the root password matches
     if(($status['Ensure'] -eq $Ensure) -and ($status['Port'] -eq $Port))
