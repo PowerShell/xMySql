@@ -237,12 +237,13 @@ function Read-ErrorFile
 
     if (Test-Path -Path $ErrorFilePath)
     {
-        ForEach ($line in (Get-Content $ErrorFilePath))
+        $content = Get-Content $ErrorFilePath
+        ForEach ($line in $content)
         {
             if ($line -match "^ERROR")
             {
                 Remove-Item -Path $ErrorFilePath
-                Throw "$line"
+                Throw $content -join "`n"
             }
         }
         Remove-Item -Path $ErrorFilePath
@@ -281,9 +282,9 @@ function Get-MySqlPort
 
     ForEach ($line in (Get-Content $myIniLocation))
     {
-        if ($line -match "^port=")
+        if ($line -match "^port\s*=")
         {
-            $mySqlPort = ($line -split '=')[1]
+            $mySqlPort = ($line -split '=')[1].Trim()
         }
     }
     return $mySqlPort
