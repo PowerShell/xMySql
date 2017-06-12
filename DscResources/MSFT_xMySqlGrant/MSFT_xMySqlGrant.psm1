@@ -50,8 +50,10 @@ function Get-TargetResource
         Remove-Item -Path $ErrorPath
     }
   
-    $arguments = "--execute=SHOW GRANTS FOR '$UserName'@localhost", "--user=root", "--password=$($RootCredential.GetNetworkCredential().Password)", `
+    $arguments = "--execute=SHOW GRANTS FOR '$UserName'@localhost", "--user=root", `
         "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)", "--silent"
+    # supress using mysql password as commandline parameter is insecure warning   
+    $env:MYSQL_PWD = $RootCredential.GetNetworkCredential().Password
     $results = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
     
     Read-ErrorFile -ErrorFilePath $ErrorPath
@@ -118,9 +120,8 @@ function Set-TargetResource
         Write-Verbose "Granting $PermissionType on $DatabaseName to $UserName..."
 
         $arguments = "--execute=GRANT $PermissionType ON $DatabaseName.* TO '$UserName'@localhost", "--user=root", `
-            "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion, $MySqlIniPath)", "--silent"
-        $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
-                   
+            "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion, $MySqlIniPath)", "--silent"
+
         $msg = $($LocalizedData.GrantCreated) -f $PermissionType, $UserName
     }
     else
@@ -129,10 +130,12 @@ function Set-TargetResource
 
         $arguments = "--execute=REVOKE $PermissionType ON $DatabaseName.* FROM '$UserName'@localhost", "--user=root", `
             "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion, $MySqlIniPath)", "--silent"
-        $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
 
         $msg = $($LocalizedData.GrantRemoved) -f $PermissionType, $UserName
     }
+    # supress using mysql password as commandline parameter is insecure warning   
+    $env:MYSQL_PWD = $RootCredential.GetNetworkCredential().Password
+    $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
 
     Read-ErrorFile -ErrorFilePath $ErrorPath
 

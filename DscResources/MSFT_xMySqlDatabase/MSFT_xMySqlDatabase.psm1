@@ -27,7 +27,9 @@ function Get-TargetResource
     }
   
     $arguments = "--execute=SELECT IF(EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$DatabaseName'), 'Yes','No')", `
-        "--user=root", "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)", "--silent"
+        "--user=root", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)", "--silent"
+    # supress using mysql password as commandline parameter is insecure    
+    $env:MYSQL_PWD = $RootCredential.GetNetworkCredential().Password
     $result = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
 
     Read-ErrorFile -ErrorFilePath $ErrorPath
@@ -76,18 +78,18 @@ function Set-TargetResource
     if($Ensure -eq "Present")
     {
         Write-Verbose "Creating Database $DatabaseName..."
-        $arguments = "--execute=CREATE DATABASE $DatabaseName", "--user=root", "--password=$($RootCredential.GetNetworkCredential().Password)", `
-            "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)", "--silent"
-        $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
+        $arguments = "--execute=CREATE DATABASE $DatabaseName", "--user=root", `
+            "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)", "--silent"        
     }
     else
     {
         Write-Verbose "Dropping Database $DatabaseName..."
-        $arguments = "--execute=DROP DATABASE $DatabaseName", "--user=root", "--password=$($RootCredential.GetNetworkCredential().Password)", `
+        $arguments = "--execute=DROP DATABASE $DatabaseName", "--user=root", `
             "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)", "--silent"
-        $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
     }
-
+    # supress using mysql password as commandline parameter is insecure warning  
+    $env:MYSQL_PWD = $RootCredential.GetNetworkCredential().Password
+    $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
     Read-ErrorFile -ErrorFilePath $ErrorPath
 }
 
