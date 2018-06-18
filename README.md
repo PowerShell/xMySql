@@ -61,7 +61,10 @@ The user name can be any non-zero length string, but it will be ignored.
 ## Versions
 
 ### Unreleased
-* Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
+
+* Changed to the default appveyor.yml template.
+* Activate the GitHub App Stale on the GitHub repository.
+
 
 ### 2.1.0.0
 
