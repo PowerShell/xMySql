@@ -113,7 +113,7 @@ InModuleScope $DSCResourceName {
             Mock Get-MySqlExe -Verifiable { return "C:\somepath" }
             Mock Invoke-MySqlCommand -Verifiable { return "No" }
             Mock Read-ErrorFile -Verifiable { return }
-            
+
             $result = Get-TargetResource -UserName $userName -UserCredential $testCred -RootCredential $testCred -MySqlVersion "5.6.17"
 
             It 'should call all the mocks' {
@@ -136,7 +136,7 @@ InModuleScope $DSCResourceName {
             }
 
             Mock Get-TargetResource -Verifiable { return $userExists }
-            
+
             $result = Test-TargetResource -UserName "TestUser" -Ensure "Present" -UserCredential $testCred -RootCredential $testCred -MySqlVersion "5.6.17"
 
             It 'should call all the mocks' {
@@ -154,7 +154,7 @@ InModuleScope $DSCResourceName {
             }
 
             Mock Get-TargetResource -Verifiable { return $userNotExist }
-            
+
             $result = Test-TargetResource -UserName "TestUser" -Ensure "Present" -UserCredential $testCred -RootCredential $testCred -MySqlVersion "5.6.17"
 
             It 'should call all the mocks' {
@@ -174,7 +174,7 @@ InModuleScope $DSCResourceName {
             }
 
             Mock Get-TargetResource -Verifiable { return $userExists }
-            
+
             $result = Test-TargetResource -UserName "TestUser" -Ensure "Absent" -UserCredential $testCred -RootCredential $testCred -MySqlVersion "5.6.17"
 
             It 'should call all the mocks' {
@@ -192,7 +192,7 @@ InModuleScope $DSCResourceName {
             }
 
             Mock Get-TargetResource -Verifiable { return $userNotExist }
-            
+
             $result = Test-TargetResource -UserName "TestUser" -Ensure "Absent" -UserCredential $testCred -RootCredential $testCred -MySqlVersion "5.6.17"
 
             It 'should call all the mocks' {
@@ -246,7 +246,7 @@ InModuleScope $DSCResourceName {
             Mock Get-MySqlExe -Verifiable { return "C:\somepath" }
             Mock Invoke-MySqlCommand -Verifiable { return } -ParameterFilter { $arguments -match "CREATE" }
             Mock Read-ErrorFile -Verifiable { return }
-            
+
             $null = Set-TargetResource -UserName "TestUser" -Ensure "Present" -UserCredential $testCred -RootCredential $testCred -MySqlVersion "5.6.17"
 
             It 'should call all the mocks' {

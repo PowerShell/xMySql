@@ -66,7 +66,7 @@ InModuleScope $DSCResourceName {
             $installPathX64 = "C:\Program Files\MySQL\MySQL Server 5.6\bin\mysql.exe"
 
             Mock Get-ShortVersion -Verifiable { return 5.6 }
-            Mock Test-Path -Verifiable { return $true } -ParameterFilter { $path -eq $installPathX64 } 
+            Mock Test-Path -Verifiable { return $true } -ParameterFilter { $path -eq $installPathX64 }
 
             $result = Get-MySqlExe -MySqlVersion "5.6.17"
 
@@ -83,8 +83,8 @@ InModuleScope $DSCResourceName {
             $installPathX86 = "C:\Program Files (x86)\MySQL\MySQL Server 5.6\bin\mysql.exe"
 
             Mock Get-ShortVersion -Verifiable { return 5.6 }
-            Mock Test-Path -Verifiable { return $false } -ParameterFilter { $path -eq $installPathX64 } 
-            Mock Test-Path -Verifiable { return $true } -ParameterFilter { $path -eq $installPathX86 } 
+            Mock Test-Path -Verifiable { return $false } -ParameterFilter { $path -eq $installPathX64 }
+            Mock Test-Path -Verifiable { return $true } -ParameterFilter { $path -eq $installPathX86 }
 
             $result = Get-MySqlExe -MySqlVersion "5.6.17"
 
@@ -133,7 +133,7 @@ InModuleScope $DSCResourceName {
             It 'should return true' {
                 $result | should be $true
             }
-        }    
+        }
 
         Context 'when the given version is not installed' {
 
@@ -148,7 +148,7 @@ InModuleScope $DSCResourceName {
             It 'should return false' {
                 $result | should be $false
             }
-        }    
+        }
     }
 
     Describe 'how Get-MySqlAllInstalled works' {
@@ -183,12 +183,12 @@ InModuleScope $DSCResourceName {
             It 'second version should match' {
                 $result[1] | should be $expectedResult[1]
             }
-        }    
+        }
     }
 
     Describe 'how Get-ShortVersion works' {
         Context 'should get the shortened version number' {
-            
+
             $result = Get-ShortVersion -MySqlVersion "5.6.17"
 
             It 'should be 5.6' {
@@ -214,7 +214,7 @@ InModuleScope $DSCResourceName {
                 Assert-VerifiableMocks
                 Assert-MockCalled Remove-Item 1
             }
-        }    
+        }
 
         Context 'how it works when there is not an ERROR in the file' {
             $mySqlError = "mysql.exe : Warning: Using a password on the command line interface can be insecure.", "At line:11 char:1", "+ & $CommandPath $Arguments", `
@@ -231,7 +231,7 @@ InModuleScope $DSCResourceName {
                 Assert-VerifiableMocks
                 Assert-MockCalled Remove-Item 1
             }
-        }    
+        }
 
         Context 'how it works when the file does not exist' {
 
@@ -246,7 +246,7 @@ InModuleScope $DSCResourceName {
                 Assert-MockCalled Get-Content 0
                 Assert-MockCalled Remove-Item 0
             }
-        }    
+        }
     }
 
     Describe 'how Get-MySqlPort works' {

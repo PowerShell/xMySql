@@ -52,7 +52,7 @@ InModuleScope $DSCResourceName {
 
         Context 'when the given version is installed' {
             $returnport = "3306"
-            
+
             Mock Get-MySqlVersionInstalled -Verifiable { return $true }
             Mock Get-MySqlPort -Verifiable { return $returnport }
 
@@ -74,7 +74,7 @@ InModuleScope $DSCResourceName {
         }
 
         Context 'when the given version is not installed' {
-            
+
             Mock Get-MySqlVersionInstalled -Verifiable { return $false }
             Mock Get-MySqlPort { return }
 

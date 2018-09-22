@@ -66,6 +66,7 @@ The user name can be any non-zero length string, but it will be ignored.
 * Activate the GitHub App Stale on the GitHub repository.
 * Added default template files .codecov.yml, .gitattributes, and .gitignore, and
   .vscode folder.
+* Added new line to end of file for test files.
 
 ### 2.1.0.0
 
