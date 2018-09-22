@@ -31,7 +31,9 @@ function Get-TargetResource
 
         [parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] $MySqlVersion    
+        [string] $MySqlVersion,
+
+        [string] $MySqlIniPath = $null
     )
     
     if (Test-Path $ErrorPath)
@@ -40,7 +42,9 @@ function Get-TargetResource
     }
 
     $arguments = "--execute=SELECT IF(EXISTS (SELECT USER FROM MYSQL.USER WHERE USER = '$UserName' AND HOST = 'localhost'), 'Yes','No')", "--user=root", `
-        "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
+        "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)", "--silent"
+    # supress using mysql password as commandline parameter is insecure warning   
+    $env:MYSQL_PWD = $RootCredential.GetNetworkCredential().Password
     $result = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
 
     Read-ErrorFile -ErrorFilePath $ErrorPath
@@ -83,7 +87,9 @@ function Set-TargetResource
 
         [parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] $MySqlVersion
+        [string] $MySqlVersion,
+
+        [string] $MySqlIniPath = $null
     )
     
     if (Test-Path $ErrorPath)
@@ -95,21 +101,20 @@ function Set-TargetResource
     {        
         Write-Verbose -Message "Adding user $UserName..."           
         $arguments = "--execute=CREATE USER '$UserName'@'localhost' IDENTIFIED BY '$($UserCredential.GetNetworkCredential().Password)'", "--user=root", `
-            "--password=$($RootCredential.GetNetworkCredential().Password)", "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
-        $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
-        $msg = $($LocalizedData.UserCreated) -f "$UserName"
-        Write-Verbose -Message $msg       
+            "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath)", "--silent"
+        $msg = $($LocalizedData.UserCreated) -f "$UserName"     
     }
     else
     {        
         Write-Verbose "Dropping user $UserName..."
-        $arguments = "--execute=DROP USER '$UserName'@'localhost'", "--user=root", "--password=$($RootCredential.GetNetworkCredential().Password)", `
+        $arguments = "--execute=DROP USER '$UserName'@'localhost'", "--user=root", `
             "--port=$(Get-MySqlPort -MySqlVersion $MySqlVersion)", "--silent"
-        $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
-        $msg = $($LocalizedData.UserRemoved) -f "$UserName"
-        Write-Verbose -Message $msg  
+        $msg = $($LocalizedData.UserRemoved) -f "$UserName"         
     }
-
+    Write-Verbose -Message $msg 
+    # supress using mysql password as commandline parameter is insecure warning   
+    $env:MYSQL_PWD = $RootCredential.GetNetworkCredential().Password
+    $null = Invoke-MySqlCommand -CommandPath $(Get-MySqlExe -MySqlVersion $MySqlVersion) -Arguments $arguments 2>$ErrorPath
     Read-ErrorFile -ErrorFilePath $ErrorPath
 }
 
@@ -133,12 +138,14 @@ function Test-TargetResource
 
         [parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] $MySqlVersion
+        [string] $MySqlVersion,
+
+        [string] $MySqlIniPath = $null
     )
     
     Write-Verbose "Ensure is $Ensure"
 
-    $status = Get-TargetResource -UserName $UserName -UserCredential $UserCredential -RootCredential $RootCredential -MySqlVersion $MySqlVersion
+    $status = Get-TargetResource -UserName $UserName -UserCredential $UserCredential -RootCredential $RootCredential -MySqlVersion $MySqlVersion -MySqlIniPath $MySqlIniPath
     
     if($status.Ensure -eq $Ensure)
     {

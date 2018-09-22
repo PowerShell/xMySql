@@ -237,12 +237,13 @@ function Read-ErrorFile
 
     if (Test-Path -Path $ErrorFilePath)
     {
-        ForEach ($line in (Get-Content $ErrorFilePath))
+        $content = Get-Content $ErrorFilePath
+        ForEach ($line in $content)
         {
             if ($line -match "^ERROR")
             {
                 Remove-Item -Path $ErrorFilePath
-                Throw "$line"
+                Throw $content -join "`n"
             }
         }
         Remove-Item -Path $ErrorFilePath
@@ -262,28 +263,35 @@ function Get-MySqlPort
 
     .PARAMETER MySqlVersion
         This is the version you want the port number for.
+
+    .PARAMETER MySqlIniPath
+        The optional path override to the MySQL Ini file containing the port configuration
     #>
 
     param
     (
         [parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] $MySqlVersion
+        [string] $MySqlVersion,
+
+        [string] $MySqlIniPath = $null
     )
 
-    $myIniLocation = Join-Path "$(${env:ProgramData})\MySQL\MySQL Server $(Get-ShortVersion $MySqlVersion)" -ChildPath "my.ini"
+    if ([string]::IsNullOrEmpty($MySqlIniPath)){
+        $MySqlIniPath = Join-Path "$(${env:ProgramData})\MySQL\MySQL Server $(Get-ShortVersion $MySqlVersion)" -ChildPath "my.ini"
+    }
 
-    # Throw an exception if $myIniLocation doesn't exist
-    if (-not (Test-Path -Path $myIniLocation))
+    # Throw an exception if $MySqlIniPath doesn't exist
+    if (-not (Test-Path -Path $MySqlIniPath))
     {
         Throw 'The my.ini file does not exist in the standard location'
     }
 
-    ForEach ($line in (Get-Content $myIniLocation))
+    ForEach ($line in (Get-Content $MySqlIniPath))
     {
-        if ($line -match "^port=")
+        if ($line -match "^port\s*=")
         {
-            $mySqlPort = ($line -split '=')[1]
+            $mySqlPort = ($line -split '=')[1].Trim()
         }
     }
     return $mySqlPort

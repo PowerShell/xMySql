@@ -6,6 +6,7 @@ class MSFT_xMySqlServer : OMI_BaseResource
     [Write, ValueMap{"Present", "Absent"},Values{"Present", "Absent"}, Description("Ensure server is present or absent")] String Ensure;
     [Required, EmbeddedInstance("MSFT_Credential"), Description("The root credential that is used to install mySql server.")] String RootPassword;
     [Write, Description("The port number for the service")] String Port;
+    [Write, Description("MySql ini Path")] String MySqlIniPath;
 };
 
 

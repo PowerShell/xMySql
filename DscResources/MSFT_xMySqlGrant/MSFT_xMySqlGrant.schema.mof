@@ -8,6 +8,7 @@ class MSFT_xMySqlGrant : OMI_BaseResource
     [Key, Description("MySql user permission type."), ValueMap{"ALL PRIVILEGES", "CREATE", "DROP", "DELETE", "INSERT", "SELECT", "UPDATE", "EXECUTE"}, Values{"ALL PRIVILEGES", "CREATE", "DROP", "DELETE", "INSERT", "SELECT", "UPDATE", "EXECUTE"}] String PermissionType;
     [Write, Description("Ensure given grant to mySql database present or absent."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
     [Required, Description("MYSql Version Number")] String MySqlVersion;
+    [Write, Description("MySql ini Path")] String MySqlIniPath;
 };
 
 
